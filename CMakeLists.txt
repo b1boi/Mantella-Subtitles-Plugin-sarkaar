@@ -30,9 +30,31 @@ project(MantellaSubtitles VERSION 0.0.1 LANGUAGES CXX)
 # Otherwise, you can set OUTPUT_FOLDER to any place you'd like :)
 #set(OUTPUT_FOLDER "C:/Modding/MO2/sse/mods/Mantella Subtitles Patch/")
 
+# Target SE+AE Skyrim with Address Library V5 (VR disabled)
+set(ENABLE_SKYRIM_SE ON CACHE BOOL "Enable Skyrim SE 1.5.97 support" FORCE)
+set(ENABLE_SKYRIM_AE ON CACHE BOOL "Enable Skyrim AE 1.6.x and 1.7.x support" FORCE)
+set(ENABLE_SKYRIM_VR OFF CACHE BOOL "Disable VR support" FORCE)
+set(BUILD_TESTS OFF CACHE BOOL "Disable CommonLib unit tests" FORCE)
+
+include(FetchContent)
+# Pin CommonLibSSE-NG to commit 07262cc2ae75777a422ed0c9621310fadef7c382 (tag: v15.7.3)
+FetchContent_Declare(
+    CommonLibSSE
+    GIT_REPOSITORY https://github.com/alandtse/CommonLibSSE-NG.git
+    GIT_TAG        07262cc2ae75777a422ed0c9621310fadef7c382 # tag: v15.7.3
+)
+FetchContent_MakeAvailable(CommonLibSSE)
+
+if(NOT COMMAND add_commonlibsse_plugin)
+    include("${commonlibsse_SOURCE_DIR}/cmake/CommonLibSSE.cmake")
+endif()
+
 # Setup your SKSE plugin as an SKSE plugin!
-find_package(CommonLibSSE CONFIG REQUIRED)
-add_commonlibsse_plugin(${PROJECT_NAME} SOURCES plugin.cpp Papyrus.cpp InjectTopic.cpp) # <--- specifies plugin.cpp
+# find_package(CommonLibSSE CONFIG REQUIRED)
+add_commonlibsse_plugin(${PROJECT_NAME}
+    AUTHOR "swwu"
+    SOURCES plugin.cpp Papyrus.cpp InjectTopic.cpp
+) # <--- specifies plugin.cpp
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23) # <--- use C++23 standard
 target_precompile_headers(${PROJECT_NAME} PRIVATE PCH.h) # <--- PCH.h is required!
 
